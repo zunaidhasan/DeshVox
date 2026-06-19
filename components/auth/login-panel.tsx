@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Chrome, ArrowLeft, Loader2, LockKeyhole, Mail } from "lucide-react";
+import { Chrome, ArrowLeft, Loader2, LockKeyhole, Mail, UserPlus, LogIn } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,29 +16,60 @@ export function LoginPanel() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState("Use your Supabase-backed workspace account.");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (mode === "signup" && password !== confirmPassword) {
+      setNotice("Passwords do not match.");
+      return;
+    }
+
     setLoading(true);
-    setNotice("Signing in...");
+    setNotice(mode === "signin" ? "Signing in..." : "Creating your account...");
 
     try {
       const supabase = createClient();
       if (!supabase) {
-        setNotice("Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to enable login.");
+        setNotice("Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to enable Supabase auth.");
         return;
       }
 
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (mode === "signin") {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) {
+          setNotice(error.message);
+          return;
+        }
+
+        router.replace("/dashboard");
+        router.refresh();
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/login`
+        }
+      });
+
       if (error) {
         setNotice(error.message);
         return;
       }
 
-      router.replace("/dashboard");
-      router.refresh();
+      if (data.session) {
+        setNotice(
+          "Account created. Your access is pending workspace assignment until an admin adds an admin or agent profile."
+        );
+      } else {
+        setNotice("Account created. Check your email to verify the account and wait for workspace access.");
+      }
     } finally {
       setLoading(false);
     }
@@ -108,8 +139,32 @@ export function LoginPanel() {
         <motion.div className="w-full max-w-lg" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1 }}>
           <Card className="border-white/10 bg-slate-950/85 shadow-[0_30px_100px_rgba(0,0,0,0.45)]">
             <CardHeader className="space-y-3 pb-2">
-              <CardTitle className="text-2xl text-white">Sign in</CardTitle>
-              <CardDescription className="text-slate-400">Use your DeshVox account to continue.</CardDescription>
+              <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 p-1 text-sm">
+                <button
+                  type="button"
+                  onClick={() => setMode("signin")}
+                  className={`inline-flex flex-1 items-center justify-center gap-2 rounded-full px-3 py-2 transition ${
+                    mode === "signin" ? "bg-deshvox-green text-white" : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  <LogIn className="h-4 w-4" />
+                  Login
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMode("signup")}
+                  className={`inline-flex flex-1 items-center justify-center gap-2 rounded-full px-3 py-2 transition ${
+                    mode === "signup" ? "bg-deshvox-green text-white" : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  <UserPlus className="h-4 w-4" />
+                  Register
+                </button>
+              </div>
+              <CardTitle className="text-2xl text-white">{mode === "signin" ? "Sign in" : "Create account"}</CardTitle>
+              <CardDescription className="text-slate-400">
+                {mode === "signin" ? "Use your DeshVox account to continue." : "Register a new Supabase account for your workspace."}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">
               <form className="space-y-4" onSubmit={handleSubmit}>
@@ -127,6 +182,23 @@ export function LoginPanel() {
                     <Input className="border-white/10 bg-white/5 pl-9 text-white placeholder:text-slate-500" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Enter your password" autoComplete="current-password" required />
                   </div>
                 </div>
+                {mode === "signup" && (
+                  <div className="space-y-2">
+                    <Label className="text-slate-200">Confirm Password</Label>
+                    <div className="relative">
+                      <LockKeyhole className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-slate-500" />
+                      <Input
+                        className="border-white/10 bg-white/5 pl-9 text-white placeholder:text-slate-500"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(event) => setConfirmPassword(event.target.value)}
+                        placeholder="Confirm your password"
+                        autoComplete="new-password"
+                        required
+                      />
+                    </div>
+                  </div>
+                )}
                 <div className="flex items-center justify-between gap-3 text-sm">
                   <button type="button" onClick={sendResetLink} className="text-deshvox-green transition hover:text-deshvox-red">
                     Forgot Password?
@@ -135,7 +207,7 @@ export function LoginPanel() {
                 </div>
                 <Button className="h-11 w-full bg-deshvox-green text-white hover:bg-deshvox-green/90" type="submit" disabled={loading}>
                   {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                  Sign in to Dashboard
+                  {mode === "signin" ? "Sign in to Dashboard" : "Create Supabase Account"}
                 </Button>
               </form>
               <div className="relative">
@@ -145,6 +217,11 @@ export function LoginPanel() {
               <Button variant="outline" className="h-11 w-full gap-2 border-white/10 bg-white/5 text-white hover:bg-white/10" onClick={signInWithGoogle} type="button">
                 <Chrome className="h-4 w-4" /> Continue with Google
               </Button>
+              {mode === "signup" && (
+                <p className="text-sm leading-6 text-slate-400">
+                  New registrations create a Supabase auth account. Dashboard access is granted only after an admin assigns an `admin` or `agent` profile.
+                </p>
+              )}
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-300">{notice}</div>
             </CardContent>
           </Card>
