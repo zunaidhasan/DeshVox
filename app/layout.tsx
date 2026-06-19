@@ -10,15 +10,29 @@ const notoBengali = Noto_Sans_Bengali({
 });
 
 export const metadata: Metadata = {
-  title: "DeshVox - AI Cloud Call Center",
-  description: "Bangladesh's smartest AI-Powered Cloud Call Center & Marketing Automation Platform"
+  metadataBase: new URL("https://deshvox.com"),
+  title: {
+    default: "DeshVox",
+    template: "%s | DeshVox"
+  },
+  description: "The omnichannel AI PBX ecosystem for Bangladesh with voice automation, marketing, analytics, and reseller tools.",
+  openGraph: {
+    title: "DeshVox",
+    description: "The omnichannel AI PBX ecosystem for Bangladesh.",
+    type: "website"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DeshVox",
+    description: "The omnichannel AI PBX ecosystem for Bangladesh."
+  }
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${notoBengali.variable} font-sans`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           {children}
         </ThemeProvider>
       </body>

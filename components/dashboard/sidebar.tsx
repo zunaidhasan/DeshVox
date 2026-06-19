@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   BarChart3,
   Bot,
   GitBranch,
   Home,
   Megaphone,
+  LogOut,
   Moon,
   PhoneCall,
   PhoneForwarded,
@@ -16,6 +17,7 @@ import {
 import { useTheme } from "next-themes";
 import { DeshVoxLogo } from "@/components/deshvox-logo";
 import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 const nav = [
@@ -30,7 +32,17 @@ const nav = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
+
+  async function handleLogout() {
+    const supabase = createClient();
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
+    router.push("/login");
+    router.refresh();
+  }
 
   return (
     <aside className="flex h-full flex-col border-r bg-card/80 px-4 py-5 backdrop-blur">
@@ -65,6 +77,15 @@ export function Sidebar() {
           <Sun className="h-4 w-4 dark:hidden" />
           <Moon className="hidden h-4 w-4 dark:block" />
           Toggle theme
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="mt-2 w-full justify-start gap-2 border-deshvox-red/30 text-deshvox-red hover:bg-deshvox-red/10 hover:text-deshvox-red"
+          onClick={handleLogout}
+        >
+          <LogOut className="h-4 w-4" />
+          Logout
         </Button>
       </div>
     </aside>
