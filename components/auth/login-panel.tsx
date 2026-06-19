@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DeshVoxLogo } from "@/components/deshvox-logo";
 import { createClient } from "@/lib/supabase/client";
+import { getFriendlyAuthErrorMessage } from "@/lib/supabase/auth";
 
 export function LoginPanel() {
   const router = useRouter();
@@ -41,7 +42,7 @@ export function LoginPanel() {
       if (mode === "signin") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {
-          setNotice(error.message);
+          setNotice(getFriendlyAuthErrorMessage(error));
           return;
         }
 
@@ -59,16 +60,14 @@ export function LoginPanel() {
       });
 
       if (error) {
-        setNotice(error.message);
+        setNotice(getFriendlyAuthErrorMessage(error));
         return;
       }
 
       if (data.session) {
-        setNotice(
-          "Account created. Your access is pending workspace assignment until an admin adds an admin or agent profile."
-        );
+        setNotice("Create your DeshVox Account complete. Your access is pending approval until an admin assigns a role.");
       } else {
-        setNotice("Account created. Check your email to verify the account and wait for workspace access.");
+        setNotice("Create your DeshVox Account complete. Check your email to verify the account and wait for approval.");
       }
     } finally {
       setLoading(false);
@@ -82,12 +81,16 @@ export function LoginPanel() {
       return;
     }
 
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: `${window.location.origin}/dashboard`
       }
     });
+
+    if (error) {
+      setNotice(getFriendlyAuthErrorMessage(error));
+    }
   }
 
   async function sendResetLink() {
@@ -161,9 +164,13 @@ export function LoginPanel() {
                   Register
                 </button>
               </div>
-              <CardTitle className="text-2xl text-white">{mode === "signin" ? "Sign in" : "Create account"}</CardTitle>
+              <CardTitle className="text-2xl text-white">
+                {mode === "signin" ? "Sign in to DeshVox" : "Create your DeshVox Account"}
+              </CardTitle>
               <CardDescription className="text-slate-400">
-                {mode === "signin" ? "Use your DeshVox account to continue." : "Register a new Supabase account for your workspace."}
+                {mode === "signin"
+                  ? "Use your DeshVox account to continue."
+                  : "Sign up for free and start automating your business communication."}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">
@@ -207,7 +214,7 @@ export function LoginPanel() {
                 </div>
                 <Button className="h-11 w-full bg-deshvox-green text-white hover:bg-deshvox-green/90" type="submit" disabled={loading}>
                   {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                  {mode === "signin" ? "Sign in to Dashboard" : "Create Supabase Account"}
+                  {mode === "signin" ? "Sign in to Dashboard" : "Create your DeshVox Account"}
                 </Button>
               </form>
               <div className="relative">
@@ -219,9 +226,15 @@ export function LoginPanel() {
               </Button>
               {mode === "signup" && (
                 <p className="text-sm leading-6 text-slate-400">
-                  New registrations create a Supabase auth account. Dashboard access is granted only after an admin assigns an `admin` or `agent` profile.
+                  New registrations create a Supabase auth account. Dashboard access is granted only after an admin assigns an admin or agent profile.
                 </p>
               )}
+              <div className="flex items-center justify-between text-sm text-slate-400">
+                <span>{mode === "signin" ? "No account yet?" : "Already registered?"}</span>
+                <button type="button" onClick={() => setMode(mode === "signin" ? "signup" : "signin")} className="text-deshvox-green transition hover:text-deshvox-red">
+                  {mode === "signin" ? "Sign up" : "Sign in"}
+                </button>
+              </div>
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-300">{notice}</div>
             </CardContent>
           </Card>

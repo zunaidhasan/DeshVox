@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { MobileNav } from "@/components/dashboard/mobile-nav";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { createClient } from "@/lib/supabase/server";
+import { getPendingApprovalMessage } from "@/lib/supabase/auth";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -17,8 +18,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", userData.user.id).maybeSingle();
 
-  if (!profile || !["ADMIN", "AGENT"].includes(String(profile.role))) {
-    redirect("/login");
+  const role = String(profile?.role ?? "").toLowerCase();
+
+  if (!profile || !["admin", "agent"].includes(role)) {
+    redirect(`/pending-approval?message=${encodeURIComponent(getPendingApprovalMessage(role))}`);
   }
 
   return (

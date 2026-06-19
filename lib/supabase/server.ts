@@ -11,22 +11,24 @@ export async function createClient() {
 
   const cookieStore = await cookies();
 
-  return createServerClient(url, key, {
-    cookies: {
-      getAll() {
-        return cookieStore.getAll();
-      },
-      setAll(
-        cookiesToSet: {
-          name: string;
-          value: string;
-          options?: Parameters<typeof cookieStore.set>[2];
-        }[]
-      ) {
-        cookiesToSet.forEach(({ name, value, options }) =>
-          cookieStore.set(name, value, options)
-        );
+  try {
+    return createServerClient(url, key, {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(
+          cookiesToSet: {
+            name: string;
+            value: string;
+            options?: Parameters<typeof cookieStore.set>[2];
+          }[]
+        ) {
+          cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
+        }
       }
-    }
-  });
+    });
+  } catch {
+    return null;
+  }
 }

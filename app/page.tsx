@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, ChevronRight, Database, Globe2, ShieldCheck, Sparkles, Users } from "lucide-react";
+import { ArrowRight, CheckCircle2, ChevronRight, Database, Globe2, Mail, PhoneCall, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { DeshVoxLogo } from "@/components/deshvox-logo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +8,7 @@ import { AutomationDiagram } from "@/components/landing/automation-diagram";
 import { HeroVisual } from "@/components/landing/hero-visual";
 import { createClient } from "@/lib/supabase/server";
 
-const menuItems = ["Call Center", "Service", "Packages", "Company", "Partners"];
+const menuItems = ["Features", "Solutions", "Pricing", "Partners"];
 const clientLogos = ["Apex Telecom", "BanglaMart", "North Star", "Dhaka Health", "Pulse Commerce", "Bikreta Pro"];
 
 const scaleCards = [
@@ -56,8 +56,8 @@ export default async function Home() {
   const isLoggedIn = Boolean(userData.user);
 
   return (
-    <main className="overflow-hidden text-white">
-      <section className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/70 backdrop-blur-xl">
+    <main className="overflow-hidden bg-[#050806] text-white">
+      <section className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
           <DeshVoxLogo />
           <nav className="hidden items-center gap-7 text-sm text-slate-300 lg:flex">
@@ -72,7 +72,7 @@ export default async function Home() {
             ) : (
               <Button asChild variant="outline" className="border-white/10 bg-white/5 text-white hover:bg-white/10"><Link href="/login">Login</Link></Button>
             )}
-            <Button asChild className="bg-deshvox-red text-white hover:bg-deshvox-red/90"><Link href="/login">Free Trial</Link></Button>
+            <Button asChild className="bg-deshvox-red text-white hover:bg-deshvox-red/90"><Link href="/login">Get Started</Link></Button>
           </div>
         </div>
       </section>
@@ -87,8 +87,8 @@ export default async function Home() {
             <h1 className="mt-6 text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">The Omnichannel AI PBX Ecosystem for Bangladesh</h1>
             <p className="mt-5 max-w-xl text-lg leading-8 text-slate-300 sm:text-xl">Smart AI Voice, Automated Marketing &amp; Complete Business Communication Platform</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg" className="bg-deshvox-green text-white hover:bg-deshvox-green/90"><Link href="/login" className="gap-2">Deploy Infrastructure <ArrowRight className="h-4 w-4" /></Link></Button>
-              <Button asChild size="lg" variant="outline" className="border-white/10 bg-white/5 text-white hover:bg-white/10"><Link href="/login" className="gap-2">Become a Reseller <ChevronRight className="h-4 w-4" /></Link></Button>
+              <Button asChild size="lg" className="bg-deshvox-green text-white hover:bg-deshvox-green/90"><Link href="/login" className="gap-2">Deploy Now <ArrowRight className="h-4 w-4" /></Link></Button>
+              <Button asChild size="lg" variant="outline" className="border-white/10 bg-white/5 text-white hover:bg-white/10"><Link href="/login" className="gap-2">Become Reseller <ChevronRight className="h-4 w-4" /></Link></Button>
             </div>
             <div className="mt-10 grid gap-3 sm:grid-cols-3">
               {[
@@ -208,8 +208,42 @@ export default async function Home() {
       </section>
 
       <div className="fixed bottom-5 right-5 z-50">
-        <Button asChild size="lg" className="rounded-full bg-deshvox-red px-5 text-white shadow-[0_16px_50px_rgba(255,0,0,0.28)] hover:bg-deshvox-red/90"><Link href={isLoggedIn ? "/dashboard/ai-receptionist" : "/login"}>Try Demo</Link></Button>
+        <Button asChild size="lg" className="rounded-full bg-deshvox-red px-5 text-white shadow-[0_16px_50px_rgba(255,0,0,0.28)] hover:bg-deshvox-red/90"><Link href={isLoggedIn ? "/dashboard/ai-receptionist" : "/login"}>Free Trial</Link></Button>
       </div>
+
+      <footer className="border-t border-white/10 bg-black/40 px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr]">
+          <div>
+            <DeshVoxLogo />
+            <p className="mt-4 max-w-sm text-sm leading-7 text-slate-400">
+              Omnichannel AI PBX infrastructure for Bangladesh. Built for dependable voice automation, campaigns, and reseller growth.
+            </p>
+          </div>
+          <div>
+            <div className="text-sm font-semibold text-white">Company</div>
+            <div className="mt-4 grid gap-3 text-sm text-slate-400">
+              <Link href="#" className="transition hover:text-white">About</Link>
+              <Link href="#" className="transition hover:text-white">Partners</Link>
+              <Link href="#" className="transition hover:text-white">Careers</Link>
+            </div>
+          </div>
+          <div>
+            <div className="text-sm font-semibold text-white">Product</div>
+            <div className="mt-4 grid gap-3 text-sm text-slate-400">
+              <Link href="#" className="transition hover:text-white">Features</Link>
+              <Link href="#" className="transition hover:text-white">Pricing</Link>
+              <Link href="#" className="transition hover:text-white">Solutions</Link>
+            </div>
+          </div>
+          <div>
+            <div className="text-sm font-semibold text-white">Contact</div>
+            <div className="mt-4 grid gap-3 text-sm text-slate-400">
+              <a href="mailto:hello@deshvox.com" className="inline-flex items-center gap-2 transition hover:text-white"><Mail className="h-4 w-4" /> hello@deshvox.com</a>
+              <a href="tel:+8801700000000" className="inline-flex items-center gap-2 transition hover:text-white"><PhoneCall className="h-4 w-4" /> +880 1700 000000</a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
