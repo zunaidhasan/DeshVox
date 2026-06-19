@@ -1,15 +1,15 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "buildCommand": "npx prisma generate && next build",
   "installCommand": "npm install",
   "outputDirectory": ".next",
   "regions": ["bom1"],
   "functions": {
-    "app/api/**/*.js": {
-      "runtime": "nodejs22.x"
-    },
     "app/api/**/*.ts": {
-      "runtime": "nodejs22.x",
+      "maxDuration": 30
+    },
+    "api/**/*.ts": {
       "maxDuration": 30
     }
   },
@@ -20,10 +20,7 @@
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "X-Frame-Options", "value": "DENY" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        {
-          "key": "Permissions-Policy",
-          "value": "camera=(), geolocation=(), payment=()"
-        }
+        { "key": "Permissions-Policy", "value": "camera=(), geolocation=(), payment=()" }
       ]
     }
   ]
