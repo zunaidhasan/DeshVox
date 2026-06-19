@@ -1,0 +1,175 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  ADMIN
+  AGENT
+  RESELLER
+}
+
+enum ExtensionStatus {
+  ONLINE
+  OFFLINE
+}
+
+enum DeviceType {
+  MOBILE_APP
+  WEB
+  SOFTPHONE
+}
+
+enum CampaignType {
+  BULK_VOICE_CALL
+  BULK_SMS
+  AI_SEQUENCE
+}
+
+model Tenant {
+  id          String       @id @default(uuid())
+  name        String
+  slug        String       @unique
+  users       Profile[]
+  extensions  Extension[]
+  campaigns   Campaign[]
+  hotLeads    HotLead[]
+  ivrFlows    IvrFlow[]
+  callSessions CallSession[]
+  complianceLogs ComplianceLog[]
+  dncEntries  DncEntry[]
+  createdAt   DateTime     @default(now())
+}
+
+model Profile {
+  id        String   @id
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  email     String?
+  phone     String?
+  fullName  String?
+  role      Role     @default(AGENT)
+  createdAt DateTime @default(now())
+}
+
+model Extension {
+  id         String          @id @default(uuid())
+  tenantId   String
+  tenant     Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name       String
+  number     String
+  department String
+  deviceType DeviceType
+  status     ExtensionStatus @default(OFFLINE)
+  createdAt  DateTime        @default(now())
+}
+
+model Campaign {
+  id            String       @id @default(uuid())
+  tenantId      String
+  tenant        Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name          String
+  type          CampaignType
+  numbers       String[]
+  script        String
+  scheduledAt   DateTime?
+  totalSent     Int          @default(0)
+  connected     Int          @default(0)
+  hotLeadCount  Int          @default(0)
+  createdAt     DateTime     @default(now())
+  hotLeads      HotLead[]
+}
+
+model HotLead {
+  id         String    @id @default(uuid())
+  tenantId   String
+  tenant     Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  campaignId String?
+  campaign   Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  name       String?
+  phone      String
+  interest   String
+  source     String
+  score      Int       @default(80)
+  createdAt  DateTime  @default(now())
+}
+
+model IvrFlow {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name      String
+  nodes     Json
+  edges     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum CallProvider {
+  RETELL
+  DEMO
+}
+
+enum CallSessionStatus {
+  REGISTERED
+  ONGOING
+  ENDED
+  ERROR
+}
+
+enum ComplianceEventType {
+  RECORDING_CONSENT
+  DNC_CHECK
+  CALL_JOIN
+  CALL_END
+}
+
+model CallSession {
+  id           String            @id @default(uuid())
+  tenantId     String
+  tenant       Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  provider     CallProvider      @default(RETELL)
+  providerCallId String?
+  agentId      String?
+  accessTokenPreview String?
+  callerName   String?
+  callerPhone  String?
+  department   String?
+  status       CallSessionStatus @default(REGISTERED)
+  consentGiven Boolean           @default(false)
+  dncBlocked   Boolean           @default(false)
+  metadata     Json?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  complianceLogs ComplianceLog[]
+}
+
+model ComplianceLog {
+  id            String              @id @default(uuid())
+  tenantId      String
+  tenant        Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  callSessionId String?
+  callSession   CallSession?        @relation(fields: [callSessionId], references: [id], onDelete: SetNull)
+  eventType     ComplianceEventType
+  phoneHash     String?
+  consentGiven  Boolean?
+  dncBlocked    Boolean?
+  details       Json?
+  createdAt     DateTime            @default(now())
+}
+
+model DncEntry {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  phoneHash String
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@unique([tenantId, phoneHash])
+}

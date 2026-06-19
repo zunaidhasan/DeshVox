@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 150 35% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 150 35% 10%;
+    --primary: 120 100% 25%;
+    --primary-foreground: 0 0% 100%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --muted: 140 18% 94%;
+    --muted-foreground: 150 9% 40%;
+    --accent: 0 85% 97%;
+    --accent-foreground: 0 100% 32%;
+    --border: 140 16% 88%;
+    --input: 140 16% 88%;
+    --ring: 120 100% 25%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 150 28% 7%;
+    --foreground: 140 18% 96%;
+    --card: 150 24% 10%;
+    --card-foreground: 140 18% 96%;
+    --primary: 120 100% 32%;
+    --primary-foreground: 0 0% 100%;
+    --destructive: 0 88% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --muted: 150 18% 15%;
+    --muted-foreground: 140 10% 70%;
+    --accent: 0 36% 17%;
+    --accent-foreground: 0 80% 78%;
+    --border: 150 17% 20%;
+    --input: 150 17% 20%;
+    --ring: 120 100% 38%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+.flag-sheen {
+  background:
+    radial-gradient(circle at 72% 42%, rgba(255, 0, 0, 0.2) 0 12%, transparent 13%),
+    linear-gradient(135deg, rgba(0, 128, 0, 0.12), rgba(255, 255, 255, 0.02));
+}
